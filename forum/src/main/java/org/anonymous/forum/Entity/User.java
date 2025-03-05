@@ -20,4 +20,6 @@ public class User {
     private byte[] salt;
 
     private String hashedPassword;
+
+    private String avatarUrl;
 }

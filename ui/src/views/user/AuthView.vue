@@ -49,11 +49,13 @@
 import {ref} from 'vue';
 import axios from "axios";
 import router from "../../router";
+import {useAvatarStore} from "../../store/avatarStore.ts";
 
 const isLogin = ref(true);
 const username = ref('');
 const password = ref('');
 const confirmPassword = ref('');
+const avatarStore = useAvatarStore();
 
 const toggleMode = () => {
   isLogin.value = !isLogin.value;
@@ -62,10 +64,18 @@ const toggleMode = () => {
 const submitForm = async () => {
   if (isLogin.value) {
     // 处理登录逻辑
-    const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/login", {id: username.value, password: password.value});
+    const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/login", {
+      id: username.value,
+      password: password.value
+    });
     if (res.status === 200) {
       console.log('登录成功:', username.value, password.value);
       localStorage.setItem('profile', username.value);
+      const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getAvatarUrl",
+          {id: username.value});
+      if (res.data !== null) {
+        avatarStore.setAvatarUrl(res.data);
+      }
       router.back();
     } else {
       alert("用户名或密码错误！");

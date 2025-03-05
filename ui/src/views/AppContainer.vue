@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="logo">
-      <img alt="论坛Logo" src="../assets/banner.png" width="306" height="45" @click="goToMain">
+      <img alt="论坛Logo" src="/banner.png" width="306" height="45" @click="goToMain">
       | Anonymous Forum
     </div>
     <div class="search-box">
@@ -14,16 +14,25 @@
       />
       <button @click="search">搜索</button>
     </div>
-    <img class="avatar" alt="头像" src="../assets/banner.png" width="45" height="45" @click="goToProfile">
+    <img class="avatar" alt="" :src="avatarUrl" width="45" height="45" @click="goToProfile">
   </div>
   <RouterView/>
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import router from "../router";
+import axios from "axios";
+import {useAvatarStore} from "../store/avatarStore.ts";
 
 const searchQuery = ref('');
+const avatarStore = useAvatarStore();
+const avatarUrl = computed(() => avatarStore.avatarUrl);
+
+// 监听 avatarUrl 的变化
+watch(avatarUrl, (newUrl) => {
+  console.log('头像URL已更新为:', newUrl);
+});
 
 const goToMain = () => {
   router.push("/posts");
@@ -45,6 +54,17 @@ const goToProfile = () => {
     router.push("/auth");
   }
 };
+
+onMounted(async () => {
+  const userId = localStorage.getItem('profile');
+  if (userId !== null && userId !== "") {
+    const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getAvatarUrl", {id: userId});
+    if (res.data !== null && res.data !== "") {
+      console.log(res.data);
+      avatarStore.setAvatarUrl(res.data);
+    }
+  }
+})
 </script>
 
 <style scoped>
@@ -52,7 +72,10 @@ const goToProfile = () => {
   display: flex;
   justify-content: space-between;
   height: 50px;
-  width: 100vw;
+  /* 将 100vw 改为 100% */
+  width: 100%;
+  /* 添加右侧内边距防止被滚动条覆盖 */
+  padding-right: calc(100vw - 100%);
   background-color: dimgrey;
   position: fixed;
 }
@@ -81,6 +104,10 @@ const goToProfile = () => {
   }
 }
 
+.avatar {
+  border-radius: 100%;
+}
+
 /* 添加媒体查询以调整小屏幕下的样式 */
 @media (max-width: 700px) {
   .header {
@@ -96,5 +123,4 @@ const goToProfile = () => {
   }
 
 }
-
 </style>

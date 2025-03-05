@@ -88,4 +88,9 @@ public class UserController {
         }
         return ResponseEntity.ok().body(user);
     }
+
+    @PostMapping("/getAvatarUrl")
+    public ResponseEntity<String> getAvatarUrl(@RequestBody Map<String, String> requestBody) {
+        return ResponseEntity.ok().body(userService.getAvatarUrl(requestBody.get("id")));
+    }
 }

@@ -2,6 +2,10 @@
   <div class="profile-page">
     <h2>个人资料</h2>
     <div class="profile-info">
+      <div class="avatar">
+        <img alt="" :src="avatarUrl"/>
+        <button v-if="isMe" @click="showModal = true">上传头像</button>
+      </div>
       <div class="details">
         <p><strong>用户名:</strong> {{ user.id }}</p>
         <p><strong>性别:</strong> {{ user.gender }}</p>
@@ -25,17 +29,27 @@
         </div>
       </div>
     </div>
+    <!-- 模态框开始 -->
+    <div v-if="showModal" class="modal-overlay" @click="showModal = false">
+      <div class="modal" @click.stop>
+        <img class="bigImg" :src=valueUrl v-if="valueUrl">
+        <input type="file" @change="handleFileChange" accept="image/*"/>
+        <button @click="uploadAvatar">上传</button>
+        <button @click="showModal = false">取消</button>
+      </div>
+    </div>
+    <!-- 模态框结束 -->
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import axios from "axios";
 import router from "../../router";
+import {useAvatarStore} from "../../store/avatarStore.ts";
 
 interface User {
   id: string;
-  password: string;
   isAdmin: boolean;
   gender: string;
 }
@@ -50,12 +64,16 @@ interface Post {
 
 const user = ref<User>({
   id: '',
-  password: '',
   isAdmin: false,
-  gender: '',
+  gender: ''
 });
 const userPosts = ref<Post[]>([]);
 const isMe = ref<boolean>(false);
+const showModal = ref<boolean>(false);
+const selectedFile = ref<File | null>(null);
+const valueUrl = ref<string | null>(null);
+const avatarStore = useAvatarStore();
+const avatarUrl = computed(() => avatarStore.avatarUrl);
 
 const getUser = async () => {
   const userId = router.currentRoute.value.params.id;
@@ -73,6 +91,66 @@ const getUser = async () => {
 const getUserPosts = async () => {
   const res = await axios.post(import.meta.env.VITE_API_URL + "/post/userPosts", {author: user.value.id});
   userPosts.value = res.data;
+}
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    const file = target.files[0];
+    selectedFile.value = file;
+
+    // 判断上传文件的大小（以MB为单位）
+    const fileSizeInMB = file.size / 1024 / 1024;
+    if (fileSizeInMB >= 2) {
+      alert('上传头像图片大小不能超过 2MB!');
+      return;
+    }
+    // 判断文件类型是否为图片
+    if (!file.type.startsWith('image')) {
+      alert('选择的文件不是图片！');
+      return;
+    }
+
+    // 创建读取文件对象
+    const reader = new FileReader();
+    reader.readAsDataURL(file); // 发起异步请求，读取文件
+
+    // 文件读取完成后
+    reader.onload = (e) => {
+      if (e.target) {
+        valueUrl.value = e.target.result as string;
+        console.log(e.target.result);
+      }
+    };
+
+    reader.onerror = (error) => {
+      console.error("文件读取错误: ", error);
+      alert("文件读取失败，请重试！");
+    };
+  }
+}
+
+const uploadAvatar = async () => {
+  if (selectedFile.value) {
+    try {
+      let formData = new FormData();
+      formData.append('file', selectedFile.value);
+      formData.append('id', user.value.id);
+      const res = await axios.post(import.meta.env.VITE_API_URL + "/img/uploadAvatar",
+          formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+      avatarStore.setAvatarUrl(res.data);
+      showModal.value = false;
+    } catch (error) {
+      console.log(error);
+      alert("上传失败，请重试！");
+    }
+  } else {
+    alert("请选择文件！");
+  }
 }
 
 const editPassword = () => {
@@ -93,6 +171,7 @@ const goToNewPost = async () => {
 
 const logout = () => {
   localStorage.removeItem('profile');
+  avatarStore.removeAvatarUrl();
   router.back();
 }
 
@@ -169,4 +248,44 @@ button:hover {
     margin-right: 10px;
   }
 }
+
+/* 模态框样式开始 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+}
+
+.modal input[type="file"] {
+  margin-bottom: 20px;
+}
+
+.modal button {
+  margin-top: 0;
+  margin-right: 10px;
+}
+
+.bigImg {
+  display: block;
+  width: 500px;
+  height: 500px;
+  border-radius: 100%;
+}
+
+/* 模态框样式结束 */
 </style>

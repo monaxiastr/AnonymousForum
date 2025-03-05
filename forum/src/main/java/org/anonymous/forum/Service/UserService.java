@@ -8,11 +8,9 @@ import org.anonymous.forum.Enum.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -66,9 +64,7 @@ public class UserService {
             user.setId(newId);
             userDAO.save(user);
             List<Post> posts = postDAO.findAllByAuthor(oldId);
-            posts.forEach(post -> {
-                post.setAuthor(newId);
-            });
+            posts.forEach(post -> post.setAuthor(newId));
             postDAO.saveAll(posts);
             return true;
         } else {
@@ -108,5 +104,20 @@ public class UserService {
 
     public User getUser(String id) {
         return userDAO.findById(id).orElse(null);
+    }
+
+    public String getAvatarUrl(String id) {
+        User user = getUser(id);
+        return (user == null) ? null : user.getAvatarUrl();
+    }
+
+    public boolean setAvatarUrl(String id, String avatarUrl) {
+        User user = userDAO.findById(id).orElse(null);
+        if (user != null) {
+            user.setAvatarUrl(avatarUrl);
+            userDAO.save(user);
+            return true;
+        }
+        return false;
     }
 }
