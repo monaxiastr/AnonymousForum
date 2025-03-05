@@ -32,7 +32,7 @@
     <!-- 模态框开始 -->
     <div v-if="showModal" class="modal-overlay" @click="showModal = false">
       <div class="modal" @click.stop>
-        <img class="bigImg" :src=valueUrl v-if="valueUrl">
+        <img class="bigImg" :src=valueUrl v-if="valueUrl" alt="">
         <input type="file" @change="handleFileChange" accept="image/*"/>
         <button @click="uploadAvatar">上传</button>
         <button @click="showModal = false">取消</button>
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import axios from "axios";
 import router from "../../router";
 import {useAvatarStore} from "../../store/avatarStore.ts";
@@ -81,13 +81,13 @@ const getUser = async () => {
   if (userId === localStorage.getItem('profile')) {
     isMe.value = true;
   }
-  const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getUser", {id: userId});
-  if (res.status === 200) {
+  try {
+    const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getUser", {id: userId});
     user.value = res.data;
     if (user.value.avatarUrl === null || user.value.avatarUrl === '') {
       user.value.avatarUrl = '/defaultAvatar.png';
     }
-  } else {
+  } catch (error) {
     alert("用户信息未找到！");
   }
 }
@@ -178,8 +178,19 @@ const logout = () => {
   localStorage.removeItem('profile');
   avatarStore.removeAvatarUrl();
   user.value.avatarUrl = '/defaultAvatar.png';
-  router.back();
+  router.push("/");
 }
+
+// 监听路由参数变化
+watch(
+    () => router.currentRoute.value.params.id,
+    async (newId) => {
+      if (newId) {
+        await getUser();
+        await getUserPosts();
+      }
+    }
+);
 
 onMounted(async () => {
   await getUser();

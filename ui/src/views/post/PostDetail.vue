@@ -37,12 +37,7 @@ const getPost = async () => {
   console.log(router.currentRoute.value.params.id);
   const res = await axios.post(import.meta.env.VITE_API_URL + "/post/getPost",
       {id: router.currentRoute.value.params.id});
-  if (res.status === 200) {
-    post.value = res.data;
-  } else {
-    alert("帖子信息未找到！");
-    router.back();
-  }
+  post.value = res.data;
 };
 
 const goToProfile = () => {

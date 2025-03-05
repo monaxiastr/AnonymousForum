@@ -53,13 +53,13 @@ const submitForm = async () => {
     alert("确认密码与原密码不匹配！");
     return;
   }
-  const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/updatePassword",
-      {id: localStorage.getItem("profile"), oldPassword: oldPassword.value, newPassword: password.value});
-  if (res.status === 200) {
+  try {
+    await axios.post(import.meta.env.VITE_API_URL + "/profile/updatePassword",
+        {id: localStorage.getItem("profile"), oldPassword: oldPassword.value, newPassword: password.value});
     console.log('修改成功:', localStorage.getItem("profile"), password.value);
     alert("修改成功！");
     router.back();
-  } else {
+  } catch (error) {
     alert("用户名或密码错误！");
   }
 };

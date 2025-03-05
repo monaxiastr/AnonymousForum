@@ -36,9 +36,7 @@ const submitPost = async () => {
     content: post.value.content
   });
   alert(res.data);
-  if (res.status === 200) {
-    router.back();
-  }
+  await router.push("/");
 };
 </script>
 

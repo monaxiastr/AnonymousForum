@@ -64,12 +64,11 @@ const toggleMode = () => {
 const submitForm = async () => {
   if (isLogin.value) {
     // 处理登录逻辑
-    const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/login", {
-      id: username.value,
-      password: password.value
-    });
-    if (res.status === 200) {
-      console.log('登录成功:', username.value, password.value);
+    try {
+      await axios.post(import.meta.env.VITE_API_URL + "/profile/login", {
+        id: username.value,
+        password: password.value
+      });
       localStorage.setItem('profile', username.value);
       const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getAvatarUrl",
           {id: username.value});
@@ -77,7 +76,7 @@ const submitForm = async () => {
         avatarStore.setAvatarUrl(res.data);
       }
       router.back();
-    } else {
+    } catch (error) {
       alert("用户名或密码错误！");
     }
   } else {
@@ -86,14 +85,13 @@ const submitForm = async () => {
       alert("确认密码与原密码不匹配！");
       return;
     }
-    const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/register",
-        {id: username.value, password: password.value});
-    if (res.status === 200) {
-      console.log('注册成功:', username.value, password.value);
+    try {
+      await axios.post(import.meta.env.VITE_API_URL + "/profile/register",
+          {id: username.value, password: password.value});
       alert("注册成功！");
       isLogin.value = true;
-    } else {
-      alert(res.data);
+    } catch (error) {
+      alert(error);
     }
   }
 };

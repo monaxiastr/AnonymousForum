@@ -2,7 +2,6 @@
   <div class="header">
     <div class="logo">
       <img alt="论坛Logo" src="/banner.png" width="306" height="45" @click="goToMain">
-      | Anonymous Forum
     </div>
     <div class="search-box">
       <input
@@ -35,7 +34,7 @@ watch(avatarUrl, (newUrl) => {
 });
 
 const goToMain = () => {
-  router.push("/posts");
+  router.push("/");
 }
 
 const search = () => {

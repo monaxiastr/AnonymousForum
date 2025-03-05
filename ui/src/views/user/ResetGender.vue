@@ -4,7 +4,7 @@
       <h2> 修改性别 </h2>
       <form @submit.prevent="submitForm">
         <div class="form-group">
-          <div class="form-item" v-for=" g in genders">
+          <div class="form-item" v-for="g in genders">
             <input
                 type="radio"
                 :id=g
@@ -33,13 +33,13 @@ const gender = ref('');
 
 const submitForm = async () => {
   const id = localStorage.getItem("profile");
-  const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/updateGender",
-      {id: id, gender: gender.value});
-  if (res.status === 200) {
+  try {
+    await axios.post(import.meta.env.VITE_API_URL + "/profile/updateGender",
+        {id: id, gender: gender.value});
     console.log('修改成功:', gender.value);
     router.back();
-  } else {
-    alert(res.data);
+  } catch (error) {
+    alert(error);
   }
 };
 
