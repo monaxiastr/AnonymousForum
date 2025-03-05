@@ -9,7 +9,7 @@ const router = createRouter({
                 title: 'Anonymous Forum',
             },
             path: '/',
-            component: () => import('../views/AppView.vue'),
+            component: () => import('../views/AppContainer.vue'),
             redirect: { name: 'posts' },
             children: [
                 {
@@ -26,7 +26,7 @@ const router = createRouter({
                         title: '帖子详情',
                     },
                     path: 'post/:id',
-                    component: () => import('../views/post/PostView.vue'),
+                    component: () => import('../views/post/PostDetail.vue'),
                 },
                 {
                     name: 'profile',
@@ -43,7 +43,7 @@ const router = createRouter({
                         title: '发布帖子',
                     },
                     path: 'newPost',
-                    component: () => import('../views/post/NewPostView.vue'),
+                    component: () => import('../views/post/NewPost.vue'),
                 },
                 {
                     name: 'auth',
@@ -59,7 +59,7 @@ const router = createRouter({
                         title: '修改密码',
                     },
                     path: 'password',
-                    component: () => import('../views/user/PasswordView.vue'),
+                    component: () => import('../views/user/ResetPassword.vue'),
                 },
                 {
                     name: 'gender',
@@ -67,7 +67,7 @@ const router = createRouter({
                         title: '修改性别',
                     },
                     path: 'gender',
-                    component: () => import('../views/user/GenderView.vue'),
+                    component: () => import('../views/user/ResetGender.vue'),
                 },
                 {
                     name: 'search',
@@ -75,7 +75,7 @@ const router = createRouter({
                         title: '搜索结果',
                     },
                     path: 'search/:query',
-                    component: () => import('../views/post/SearchView.vue'),
+                    component: () => import('../views/post/SearchResult.vue'),
                 },
             ],
         },
