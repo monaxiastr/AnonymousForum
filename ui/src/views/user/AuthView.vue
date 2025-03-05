@@ -73,7 +73,7 @@ const submitForm = async () => {
       localStorage.setItem('profile', username.value);
       const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getAvatarUrl",
           {id: username.value});
-      if (res.data !== null) {
+      if (res.data !== null && res.data.length > 0) {
         avatarStore.setAvatarUrl(res.data);
       }
       router.back();

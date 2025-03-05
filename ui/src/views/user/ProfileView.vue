@@ -3,7 +3,7 @@
     <h2>个人资料</h2>
     <div class="profile-info">
       <div class="avatar">
-        <img alt="" :src="avatarUrl"/>
+        <img alt="" :src="user.avatarUrl"/>
         <button v-if="isMe" @click="showModal = true">上传头像</button>
       </div>
       <div class="details">
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import axios from "axios";
 import router from "../../router";
 import {useAvatarStore} from "../../store/avatarStore.ts";
@@ -52,6 +52,7 @@ interface User {
   id: string;
   isAdmin: boolean;
   gender: string;
+  avatarUrl: string;
 }
 
 interface Post {
@@ -65,7 +66,8 @@ interface Post {
 const user = ref<User>({
   id: '',
   isAdmin: false,
-  gender: ''
+  gender: '',
+  avatarUrl: '/defaultAvatar.png'
 });
 const userPosts = ref<Post[]>([]);
 const isMe = ref<boolean>(false);
@@ -73,7 +75,6 @@ const showModal = ref<boolean>(false);
 const selectedFile = ref<File | null>(null);
 const valueUrl = ref<string | null>(null);
 const avatarStore = useAvatarStore();
-const avatarUrl = computed(() => avatarStore.avatarUrl);
 
 const getUser = async () => {
   const userId = router.currentRoute.value.params.id;
@@ -83,6 +84,9 @@ const getUser = async () => {
   const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getUser", {id: userId});
   if (res.status === 200) {
     user.value = res.data;
+    if (user.value.avatarUrl === null || user.value.avatarUrl === '') {
+      user.value.avatarUrl = '/defaultAvatar.png';
+    }
   } else {
     alert("用户信息未找到！");
   }
@@ -143,6 +147,7 @@ const uploadAvatar = async () => {
             }
           });
       avatarStore.setAvatarUrl(res.data);
+      user.value.avatarUrl = res.data;
       showModal.value = false;
     } catch (error) {
       console.log(error);
@@ -172,6 +177,7 @@ const goToNewPost = async () => {
 const logout = () => {
   localStorage.removeItem('profile');
   avatarStore.removeAvatarUrl();
+  user.value.avatarUrl = '/defaultAvatar.png';
   router.back();
 }
 
@@ -198,7 +204,7 @@ onMounted(async () => {
 .avatar img {
   width: 150px;
   height: 150px;
-  border-radius: 50%;
+  border-radius: 100%;
 }
 
 .details {
