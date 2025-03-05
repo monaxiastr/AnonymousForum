@@ -43,7 +43,7 @@ public class PostService {
         return postDAO.findById(id).orElse(null);
     }
 
-    public List<Post> getPostsByTitleLike(String title) {
-        return postDAO.findByTitleLikeIgnoreCase(title);
+    public List<Post> getPostsByTitleContaining(String title) {
+        return postDAO.findByTitleContaining(title);
     }
 }

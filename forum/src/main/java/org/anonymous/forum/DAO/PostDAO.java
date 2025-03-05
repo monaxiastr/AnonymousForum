@@ -11,5 +11,5 @@ public interface PostDAO extends JpaRepository<Post, Integer> {
 
     List<Post> findAllByAuthor(String author);
 
-    List<Post> findByTitleLikeIgnoreCase(String title);
+    List<Post> findByTitleContaining(String title);
 }

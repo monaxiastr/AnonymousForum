@@ -48,6 +48,6 @@ public class PostController {
     @PostMapping("/searchPosts")
     public List<Post> searchPosts(@RequestBody Map<String, String> requestBody) {
         String title = requestBody.get("query");
-        return postService.getPostsByTitleLike(title);
+        return postService.getPostsByTitleContaining(title);
     }
 }
