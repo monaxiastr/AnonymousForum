@@ -46,4 +46,12 @@ public class PostService {
     public List<Post> getPostsByTitleContaining(String title) {
         return postDAO.findByTitleContaining(title);
     }
+
+    public List<Post> getPostsByContentContaining(String content) {
+        return postDAO.findByContentContaining(content);
+    }
+
+    public List<Post> getPostsByAuthorContaining(String author) {
+        return postDAO.findByAuthorContaining(author);
+    }
 }

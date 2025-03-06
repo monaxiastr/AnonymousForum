@@ -1,6 +1,9 @@
 <template>
   <div class="columns">
-    <a v-for="column in columns" class="column" @click="selectColumn(column)">{{ column }}</a>
+    <div v-for="column in columns" class="column" @click="selectColumn(column)"
+         :class="{ active: selectedColumn === column }" :key="column">
+      {{ column }}
+    </div>
   </div>
 
   <div class="posts-container">
@@ -19,7 +22,7 @@
 
 <script setup lang="ts">
 import axios from "axios";
-import { onMounted, ref, computed } from "vue";
+import {onMounted, ref, computed} from "vue";
 import router from "../../router";
 
 interface Post {
@@ -35,11 +38,11 @@ const posts = ref<Post[]>([]);
 const selectedColumn = ref<string>("最新");
 
 const goToPost = async (id: number) => {
-  await router.push({ name: 'post', params: { id: id } });
+  await router.push({name: 'post', params: {id: id}});
 }
 
 const goToNewPost = async () => {
-  await router.push({ name: "newPost" });
+  await router.push({name: "newPost"});
 }
 
 const getPosts = async () => {
@@ -68,7 +71,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-
 .columns {
   display: flex;
   top: 50px;
@@ -78,8 +80,14 @@ onMounted(async () => {
 }
 
 .column {
-  margin: 0 10px;
   cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.column.active {
+  border: solid 1px #535bf2;
 }
 
 .posts-container {

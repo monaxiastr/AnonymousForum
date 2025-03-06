@@ -1,7 +1,13 @@
 <template>
   <div class="posts-container">
+    <div class="columns">
+      <div v-for="column in columns" class="column" @click="selectColumn(column)"
+           :class="{ active: selectedColumn === column }" :key="column">
+        {{ column }}
+      </div>
+    </div>
     <div v-for="post in posts" :key="post.id" class="post-item" @click="goToPost(post.id)">
-      <h2 v-if="post.title!==''">{{ post.title }}</h2>
+      <h2 v-if="post.title">{{ post.title }}</h2>
       <p>{{ post.content }}</p>
       <div class="post-meta">
         <span> 投稿者: {{ post.author }} </span>
@@ -24,52 +30,87 @@ interface Post {
   content: string;
 }
 
+const columns = ref<string[]>(["按标题", "按内容", "按投稿者"]);
 const posts = ref<Post[]>([]);
+const selectedColumn = ref<string>("按标题");
+
+const selectColumn = async (column: string) => {
+  selectedColumn.value = column;
+  await fetchPosts();
+}
 
 const goToPost = async (id: number) => {
   await router.push({name: 'post', params: {id: id}});
 }
 
-const getPosts = async () => {
+const fetchPosts = async () => {
   const query = router.currentRoute.value.params.query;
-  console.log(query);
-  const postsRes = await axios.post(import.meta.env.VITE_API_URL + "/post/searchPosts",
-      {query: query});
-  posts.value = postsRes.data;
+  if (!query) return;
+  try {
+    const type = columnMap[selectedColumn.value];
+    const postsRes = await axios.post(import.meta.env.VITE_API_URL + "/post/searchPosts",
+        {query: query, type: type});
+    posts.value = postsRes.data;
+  } catch (error) {
+    console.error("获取帖子时出错:", error);
+  }
 }
 
-// 监听路由参数变化
+const columnMap: { [key: string]: string } = {
+  "按标题": "title",
+  "按内容": "content",
+  "按投稿者": "author",
+};
+
 watch(
     () => router.currentRoute.value.params.query,
     async (newQuery) => {
       if (newQuery) {
-        await getPosts();
+        selectedColumn.value = "按标题";
+        await fetchPosts();
       }
     }
 );
 
 onMounted(async () => {
-  await getPosts();
+  await fetchPosts();
 });
 </script>
 
 <style scoped>
+.columns {
+  display: flex;
+  top: 50px;
+  position: fixed;
+  width: 100%;
+  background-color: #888888;
+}
+
+.column {
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.column.active {
+  border: solid 1px #535bf2;
+}
 
 .posts-container {
   justify-items: center;
   width: 100vw;
-  margin-top: 70px;
-  padding: 20px;
+  margin-top: 80px;
 }
 
 .post-item {
   width: 80%;
   border-bottom: 1px solid #eee;
   padding: 20px 0;
+}
 
-  h2 {
-    margin: 0 0 10px;
-  }
+.post-item h2 {
+  margin: 0 0 10px;
 }
 
 .post-item:hover {
@@ -80,9 +121,9 @@ onMounted(async () => {
 .post-meta {
   font-size: 0.9em;
   color: #666;
+}
 
-  span {
-    margin-right: 10px;
-  }
+.post-meta span {
+  margin-right: 10px;
 }
 </style>

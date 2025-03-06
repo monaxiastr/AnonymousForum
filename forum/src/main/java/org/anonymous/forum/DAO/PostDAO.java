@@ -12,4 +12,8 @@ public interface PostDAO extends JpaRepository<Post, Integer> {
     List<Post> findAllByAuthor(String author);
 
     List<Post> findByTitleContaining(String title);
+
+    List<Post> findByContentContaining(String content);
+
+    List<Post> findByAuthorContaining(String author);
 }

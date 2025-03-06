@@ -3,7 +3,7 @@
     <h2>个人资料</h2>
     <div class="profile-info">
       <div class="avatar">
-        <img alt="" :src="user.avatarUrl"/>
+        <img alt="" :src="user.avatarUrl">
         <button v-if="isMe" @click="showModal = true">上传头像</button>
       </div>
       <div class="details">
@@ -226,15 +226,7 @@ onMounted(async () => {
 button {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #42b983;
-  color: white;
-  border: none;
   border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #3aa876;
 }
 
 .posts-container {
@@ -288,8 +280,16 @@ button:hover {
   z-index: 1001;
 }
 
-.modal input[type="file"] {
+.modal input::file-selector-button{
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
   margin-bottom: 20px;
+  background-color: #42b983;
+  color: white;
+  border: none;
 }
 
 .modal button {

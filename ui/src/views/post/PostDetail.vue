@@ -3,8 +3,8 @@
     <div class="post-info">
       <h2>{{ post.title }}</h2>
       <div class="meta">
-        <strong>投稿者:</strong> <span @click="goToProfile"> {{ post.author }} </span>
-        <strong>发布时间:</strong>{{ post.time }}
+        <span @click="goToProfile"> <img class="avatar" alt="" :src="avatarUrl"> {{ post.author }} </span>
+        <strong> 发布时间: </strong> {{ post.time }}
       </div>
       <p>{{ post.content }}</p>
     </div>
@@ -25,12 +25,13 @@ interface Post {
   content: string;
 }
 
+const avatarUrl = ref<string>('/defaultAvatar.png');
 const post = ref<Post>({
-  id: 0,
-  author: '0',
-  title: '0',
-  time: '0',
-  content: '0',
+  id: -1,
+  author: '',
+  title: '',
+  time: '',
+  content: '',
 });
 
 const getPost = async () => {
@@ -38,6 +39,14 @@ const getPost = async () => {
   const res = await axios.post(import.meta.env.VITE_API_URL + "/post/getPost",
       {id: router.currentRoute.value.params.id});
   post.value = res.data;
+  const userId = post.value.author;
+  if (userId !== null && userId !== "") {
+    const res = await axios.post(import.meta.env.VITE_API_URL + "/profile/getAvatarUrl", {id: userId});
+    if (res.data !== null && res.data !== "") {
+      console.log(res.data);
+      avatarUrl.value = res.data;
+    }
+  }
 };
 
 const goToProfile = () => {
@@ -76,5 +85,11 @@ onMounted(async () => {
   span:hover {
     text-decoration: underline;
   }
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
 }
 </style>

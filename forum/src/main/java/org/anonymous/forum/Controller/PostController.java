@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +28,7 @@ public class PostController {
         String content = requestBody.get("content");
         if (postService.createPost(author, title, content)) {
             return ResponseEntity.ok("发布成功！");
-        }
-        else {
+        } else {
             return ResponseEntity.badRequest().body("作者不存在！");
         }
     }
@@ -48,6 +48,12 @@ public class PostController {
     @PostMapping("/searchPosts")
     public List<Post> searchPosts(@RequestBody Map<String, String> requestBody) {
         String title = requestBody.get("query");
-        return postService.getPostsByTitleContaining(title);
+        String searchType = requestBody.get("type");
+        return switch (searchType) {
+            case "title" -> postService.getPostsByTitleContaining(title);
+            case "content" -> postService.getPostsByContentContaining(title);
+            case "author" -> postService.getPostsByAuthorContaining(title);
+            default -> new ArrayList<>();
+        };
     }
 }
