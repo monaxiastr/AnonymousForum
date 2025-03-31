@@ -66,8 +66,8 @@ onMounted(async () => {
 
 <style scoped>
 .post-page {
-  max-width: 600px;
-  margin-left: 50px;
+  width: 80%;
+  justify-self: center;
   margin-top: 60px;
   padding: 20px;
 }

@@ -48,6 +48,12 @@ const goToNewPost = async () => {
 const getPosts = async () => {
   const postsRes = await axios.post(import.meta.env.VITE_API_URL + "/post/getAllPosts");
   posts.value = postsRes.data;
+  for (let i = 0; i < posts.value.length; i++) {
+    let post = posts.value[i];
+    if (post.content && post.content.length > 25) {
+      post.content = post.content.substring(0,25) + "...";
+    }
+  }
 }
 
 const selectColumn = (column: string) => {
